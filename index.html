@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0"/>
+  <meta name="theme-color" content="#1e3a5f"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
+  <meta name="apple-mobile-web-app-title" content="Inglês Diego"/>
+  <link rel="manifest" href="manifest.json"/>
+  <link rel="apple-touch-icon" href="icon-192.png"/>
+  <title>Inglês Diego</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f3f4f6;min-height:100vh;padding-bottom:80px}
+    button{cursor:pointer;border:none;font-family:inherit}
+
+    /* Header */
+    .header{background:linear-gradient(135deg,#1e3a5f,#3b82f6);padding:16px;color:#fff;position:sticky;top:0;z-index:100}
+    .header h1{font-size:17px;font-weight:800;margin-bottom:2px}
+    .header p{font-size:12px;opacity:.8}
+
+    /* Nav tabs */
+    .nav{display:flex;gap:6px;padding:12px 16px;background:#fff;border-bottom:1px solid #e5e7eb;position:sticky;top:72px;z-index:99}
+    .nav button{flex:1;padding:8px 4px;border-radius:10px;font-size:12px;font-weight:600;background:#f3f4f6;color:#374151;transition:all .2s}
+    .nav button.active{background:#1e3a5f;color:#fff}
+
+    /* Content */
+    .content{padding:12px 16px}
+
+    /* Week grid */
+    .week-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+    .week-card{background:#fff;border-radius:12px;padding:12px;border:2px solid #e5e7eb;text-align:left;transition:all .2s}
+    .week-card.active{border-color:#3b82f6;background:#eff6ff}
+    .week-card .wn{font-size:12px;font-weight:800;color:#1e3a5f}
+    .week-card .wg{font-size:11px;color:#374151;margin:3px 0;line-height:1.3}
+    .week-card .wbar-bg{background:#e5e7eb;border-radius:4px;height:4px;margin-top:6px}
+    .week-card .wbar{height:4px;border-radius:4px;background:#3b82f6;transition:width .3s}
+    .week-card .wpct{font-size:10px;color:#9ca3af;margin-top:3px}
+
+    /* Day selector */
+    .day-scroll{display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:12px}
+    .day-scroll::-webkit-scrollbar{display:none}
+    .day-btn{flex-shrink:0;width:56px;padding:8px 4px;border-radius:10px;border:2px solid #e5e7eb;background:#fff;font-weight:700;font-size:11px;text-align:center;transition:all .2s}
+    .day-btn .dl{font-size:12px}
+    .day-btn .dh{font-size:9px;opacity:.8;margin:1px 0}
+    .day-btn .dp{font-size:10px;opacity:.7}
+
+    /* Week info card */
+    .week-info{background:#fff;border-radius:14px;padding:14px;margin-bottom:12px;border-left:4px solid #3b82f6}
+    .note-badge{background:#fef9c3;border-radius:6px;padding:5px 8px;font-size:11px;color:#92400e;font-weight:600;margin-bottom:8px}
+    .prod-text{font-size:12px;color:#374151;line-height:1.5}
+    .prog-row{display:flex;justify-content:space-between;font-size:11px;color:#9ca3af;margin-bottom:3px;margin-top:10px}
+    .prog-bg{background:#e5e7eb;border-radius:6px;height:5px}
+    .prog-bar{height:5px;border-radius:6px;background:#3b82f6;transition:width .3s}
+
+    /* Day list */
+    .day-list{display:flex;flex-direction:column;gap:8px}
+    .day-row{background:#fff;border-radius:12px;padding:12px 14px;border:1px solid #e5e7eb;display:flex;align-items:center;gap:10;text-align:left}
+    .day-icon{width:44px;height:44px;border-radius:10px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;flex-shrink:0}
+    .day-icon span:first-child{font-weight:800;font-size:12px}
+    .day-icon span:last-child{font-size:9px;opacity:.85}
+    .day-info{flex:1;margin-left:10px}
+    .day-info .df{font-weight:600;font-size:13px;color:#111}
+    .day-info .ds{font-size:11px;color:#9ca3af;margin-top:2px}
+    .day-mini-bar{display:flex;gap:1px;height:4px;border-radius:4px;overflow:hidden;margin-top:5px}
+    .day-count{text-align:right;flex-shrink:0;margin-left:8px}
+    .day-count .dc{font-size:12px;font-weight:700}
+    .day-count .dl2{font-size:10px;color:#9ca3af}
+    .arrow{font-size:18px;color:#9ca3af;margin-left:4px}
+
+    /* Task list */
+    .task-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px}
+    .day-label{border-radius:8px;padding:4px 12px;font-weight:800;font-size:14px;color:#fff}
+    .day-focus{font-size:13px;color:#374151;font-weight:600;margin-left:8px}
+    .time-badge-header{background:#f1f5f9;border-radius:8px;padding:4px 10px;font-size:12px;font-weight:700}
+    .task-item{display:flex;gap:10px;align-items:flex-start;padding:10px 0;border-bottom:1px solid #f3f4f6}
+    .task-item:last-child{border-bottom:none}
+    .task-check{width:22px;height:22px;border-radius:6px;border:2px solid #d1d5db;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px;transition:all .2s;font-size:13px;font-weight:800;color:#fff}
+    .task-text{flex:1;font-size:13px;color:#111;line-height:1.6}
+    .task-text.done{color:#9ca3af;text-decoration:line-through}
+    .type-badge{display:inline-flex;align-items:center;gap:3px;border-radius:6px;padding:1px 7px;font-size:11px;font-weight:700;white-space:nowrap;flex-shrink:0}
+    .type-dot{width:6px;height:6px;border-radius:50%;display:inline-block}
+
+    /* Time bar */
+    .time-bar-wrap{margin-top:14px;background:#f9fafb;border-radius:10px;padding:10px 12px}
+    .time-bar-row{display:flex;justify-content:space-between;font-size:11px;color:#6b7280;margin-bottom:6px}
+    .time-bar{display:flex;gap:2px;height:8px;border-radius:6px;overflow:hidden}
+    .type-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px}
+    .type-tag{font-size:10px;border-radius:5px;padding:2px 6px;font-weight:600}
+
+    /* Index */
+    .idx-row{display:flex;gap:8px;align-items:center;padding:5px 0;border-bottom:1px solid #f3f4f6;font-size:12px}
+    .idx-un{font-weight:700;color:#1e3a5f;min-width:64px}
+    .idx-cat{background:#f1f5f9;color:#475569;border-radius:5px;padding:1px 7px;font-size:11px}
+
+    /* Toast */
+    .toast{position:fixed;bottom:90px;left:50%;transform:translateX(-50%);background:#1e3a5f;color:#fff;border-radius:20px;padding:8px 18px;font-size:13px;font-weight:600;opacity:0;transition:opacity .3s;pointer-events:none;z-index:200;white-space:nowrap}
+    .toast.show{opacity:1}
+  </style>
+</head>
+<body>
+
+<div class="header">
+  <h1>📅 Inglês Diego — A1→C1</h1>
+  <p>Essential Grammar in Use 3ª Ed. · Seg–Sex 1h · Sáb–Dom 2h</p>
+</div>
+
+<div class="nav">
+  <button class="active" id="btn-overview" onclick="switchTab('overview')">🗂️ Visão Geral</button>
+  <button id="btn-week" onclick="switchTab('week')">📆 Semana</button>
+  <button id="btn-index" onclick="switchTab('index')">📖 Índice</button>
+</div>
+
+<div class="content">
+  <div id="tab-overview"></div>
+  <div id="tab-week" style="display:none"></div>
+  <div id="tab-index" style="display:none"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+// ─── DADOS ────────────────────────────────────────────────────────────────────
+const TC = {
+  vocabulário:{bg:"#eff6ff",text:"#1d4ed8",dot:"#3b82f6"},
+  gramática:  {bg:"#fdf4ff",text:"#7e22ce",dot:"#a855f7"},
+  listening:  {bg:"#f0fdf4",text:"#15803d",dot:"#22c55e"},
+  speaking:   {bg:"#fff7ed",text:"#c2410c",dot:"#f97316"},
+  reading:    {bg:"#fefce8",text:"#a16207",dot:"#eab308"},
+  revisão:    {bg:"#f1f5f9",text:"#475569",dot:"#94a3b8"},
+  imersão:    {bg:"#fdf2f8",text:"#9d174d",dot:"#ec4899"},
+  aula:       {bg:"#ecfdf5",text:"#065f46",dot:"#10b981"},
+  produção:   {bg:"#fff1f2",text:"#9f1239",dot:"#e11d48"},
+};
+const THEORY = {seg:60,ter:60,qua:60,qui:60,sex:60,sab:120,dom:120};
+const DLABEL = {seg:"Seg",ter:"Ter",qua:"Qua",qui:"Qui",sex:"Sex",sab:"Sáb",dom:"Dom"};
+const DCOLOR = {seg:"#3b82f6",ter:"#8b5cf6",qua:"#10b981",qui:"#f59e0b",sex:"#ef4444",sab:"#1e3a5f",dom:"#6b7280"};
+const t = (text,type,min) => ({text,type,min});
+
+const WEEKS = [
+  {n:1,grammar:"am/is/are + questions",murphy:"Un. 1–2",bbc:"What makes you happy?",
+   note:"Lacunas diagnosticadas pelo Andy: plurais irregulares, vocabulário família, WH questions.",
+   production:"5 frases sobre você e família com am/is/are. Leve para Andy.",
+   days:[
+    {id:"seg",focus:"Vocabulário + Gramática",tasks:[t("Anki: 10 cartas novas (deck Fase 1). Fale cada palavra em voz alta.","vocabulário",15),t("Murphy Un.1 — am/is/are: leia lado esquerdo devagar, 2x. Sublinhe o que for novo.","gramática",20),t("Murphy Un.1 — crie 3 frases pessoais, depois faça os exercícios e corrija.","gramática",15),t("Setup: mude celular para inglês. Salve bbc.co.uk/learningenglish.","imersão",10)]},
+    {id:"ter",focus:"Gramática + Listening",tasks:[t("Anki: revisão + 10 novas","vocabulário",12),t("Murphy Un.1: refaça exercícios que errou. Grave 3–4 frases sobre sua manhã.","gramática",18),t("BBC 6 Min — 'What makes you happy?': 1ª ouça SEM transcrição. Anote 2–3 palavras.","listening",10),t("BBC 6 Min — 2ª ouça COM transcrição. 5 palavras novas para o Anki.","listening",20)]},
+    {id:"qua",focus:"Gramática + Reading",tasks:[t("Anki: revisão + 5 palavras do BBC","vocabulário",12),t("Murphy Un.2 — am/is/are questions: Where are you from? How old is she? Leia + exercícios.","gramática",23),t("News in Levels Level 1: leia SEM traduzir. Anote 3 palavras novas.","reading",15),t("Grave: 'What is your name? Where are you from? How old are you?'","speaking",10)]},
+    {id:"qui",focus:"WH Questions + Speaking ⭐",tasks:[t("Anki: revisão + 10 novas — foco família: husband, wife, son, daughter, grandson, granddaughter","vocabulário",15),t("Murphy Un.2: exercícios + pratique WH questions em voz alta: What/Who/Where/When/Why/How/Which","gramática",20),t("Grave 5 frases sobre sua família. Ouça e corrija 1 erro.","speaking",15),t("BBC 6 Min — 3ª ouça: só ritmo e entonação.","listening",10)]},
+    {id:"sex",focus:"Revisão + Prep Andy",tasks:[t("Anki: SÓ revisão — foco família","vocabulário",10),t("Revisão Un.1–2: releia lado esquerdo (5 min cada).","revisão",15),t("Plurais irregulares ⭐: men/women/children/people/teeth/feet — 1 frase com cada no Anki.","gramática",15),t("Prep Andy: anote dúvidas. Prepare: 'Tell me about your family using is/are.'","produção",20)]},
+    {id:"sab",focus:"🎓 Aula Andy + Reforço",tasks:[t("AULA COM ANDY — 50–60 min. Foco: am/is/are + WH questions + família. Leve frases e erros.","aula",60),t("Após aula: anote TODOS os erros corrigidos.","revisão",15),t("Anki: palavras novas da aula.","vocabulário",10),t("Bluey: 1 episódio com legenda em inglês (Fase A).","imersão",35)]},
+    {id:"dom",focus:"Input + Consolidação",tasks:[t("Anki: SÓ revisão. Fale cada palavra em voz alta.","vocabulário",15),t("Releia Murphy Un.1–2 (lado esquerdo). Só reconhecer, não reaprender.","revisão",20),t("Bluey: 2 episódios — note is/are nas falas.","imersão",44),t("Escreva produção da semana: 5 frases sobre você e família.","produção",21)]},
+  ]},
+  {n:2,grammar:"Present Continuous",murphy:"Un. 3–4",bbc:"Is it good to talk to yourself?",
+   note:"Krashen i+1: o Continuous é mais fácil para brasileiros — equivale a 'estou fazendo'.",
+   production:"Grave 1 minuto descrevendo o que está acontecendo ao seu redor AGORA.",
+   days:[
+    {id:"seg",focus:"Gramática",tasks:[t("Anki: revisão + 10 novas (verbos de ação: eat, sleep, run, read, work, play, watch, study)","vocabulário",15),t("Murphy Un.3 — I am doing: leia 2x. A forma -ing não tem equivalente exato em português.","gramática",20),t("Murphy Un.3 — exercícios. Descreva 5 coisas ao redor: 'The fan is running.'","gramática",15),t("Imersão: playlist em inglês enquanto faz outra coisa.","imersão",10)]},
+    {id:"ter",focus:"Gramática + Speaking",tasks:[t("Anki: revisão + 10 novas","vocabulário",12),t("Murphy Un.3: refaça exercícios que errou.","gramática",13),t("Grave 1 min descrevendo o que acontece agora. Identifique 1 erro de pronúncia.","speaking",15),t("BBC 6 Min — 1ª ouça SEM transcrição. 2ª COM transcrição. 5 palavras ao Anki.","listening",20)]},
+    {id:"qua",focus:"Gramática + Shadowing",tasks:[t("Anki: revisão + 5 palavras do BBC","vocabulário",12),t("Murphy Un.4 — are you doing? questions: Where are you going? Leia + exercícios.","gramática",23),t("Shadowing (15 min): ouça 1 frase BBC → pause → repita imitando entonação.","speaking",15),t("News in Levels Level 1: leia e escreva 2 frases resumindo.","reading",10)]},
+    {id:"qui",focus:"Gramática + Produção",tasks:[t("Anki: revisão + 10 novas","vocabulário",12),t("Murphy Un.3–4: revisão + crie 5 perguntas no Continuous: 'Are you working? What are you doing?'","gramática",23),t("Grave a produção da semana: 1 min descrevendo o que está ao seu redor.","speaking",15),t("BBC 6 Min — 3ª ouça: só prazer.","listening",10)]},
+    {id:"sex",focus:"Revisão + Prep Andy",tasks:[t("Anki: SÓ revisão","vocabulário",10),t("Releia Un.3–4 (lado esquerdo). Quando usar -ing? Só ações em andamento agora.","revisão",20),t("Prep Andy: prepare 'What are you doing right now? What are you studying?'","produção",20),t("Escreva 3 perguntas no Continuous para fazer ao Andy.","gramática",10)]},
+    {id:"sab",focus:"🎓 Aula Andy + Reforço",tasks:[t("AULA COM ANDY — foco: Present Continuous em conversa. Pratique perguntas e respostas.","aula",60),t("Após aula: anote erros.","revisão",15),t("Anki: palavras novas da aula.","vocabulário",10),t("Bluey: 2 episódios — note -ing nas falas.","imersão",35)]},
+    {id:"dom",focus:"Input + Integração",tasks:[t("Anki: SÓ revisão.","vocabulário",15),t("Refaça 5 exercícios das Un.3–4 sem olhar respostas.","revisão",20),t("Bluey: 2 episódios com legenda.","imersão",44),t("Escreva 5 frases descrevendo um dia típico usando Continuous.","produção",21)]},
+  ]},
+  {n:3,grammar:"Present Simple + ⭐ Simple vs Continuous",murphy:"Un. 5–8",bbc:"How do you learn new words?",
+   note:"Un.8 (Continuous vs Simple) é a mais importante do livro para brasileiros. Não avance com dúvida aqui.",
+   production:"5 frases Present Simple + 5 Present Continuous sobre você. Leve para Andy corrigir.",
+   days:[
+    {id:"seg",focus:"Gramática",tasks:[t("Anki: revisão + 10 novas (rotina: wake up, have breakfast, go to work, come home, go to bed)","vocabulário",15),t("Murphy Un.5 — I do/work/like (Present Simple): leia 2x. Foco: rotinas e fatos permanentes.","gramática",20),t("Murphy Un.5 — 3 frases sobre sua rotina: 'I study English every day.'","gramática",15),t("Imersão: playlist em inglês.","imersão",10)]},
+    {id:"ter",focus:"Gramática + Listening",tasks:[t("Anki: revisão + 10 novas","vocabulário",12),t("Murphy Un.6 — I don't… (Simple negativo): leia + exercícios.","gramática",23),t("BBC 6 Min — 'How do you learn new words?': 1ª sem transcrição. 2ª com transcrição. 5 palavras.","listening",25)]},
+    {id:"qua",focus:"Gramática + Speaking",tasks:[t("Anki: revisão + 5 palavras do BBC","vocabulário",12),t("Murphy Un.7 — Do you…? questions: What do you do? Where do you live? Leia + exercícios.","gramática",23),t("Grave respondendo 5 WH questions sobre você.","speaking",15),t("Shadowing: 10 min com BBC.","speaking",10)]},
+    {id:"qui",focus:"⭐⭐ Un.8 — a mais importante",tasks:[t("Anki: revisão + 10 novas","vocabulário",12),t("Murphy Un.8 — Continuous vs Simple ⭐⭐: LEIA DEVAGAR, 2X. 'I work' (sempre) vs 'I am working' (agora).","gramática",28),t("Murphy Un.8 — exercícios. Não pule nenhum. Anote cada erro.","gramática",20)]},
+    {id:"sex",focus:"Produção + Prep Andy",tasks:[t("Anki: SÓ revisão","vocabulário",10),t("Escreva produção: 5 frases Simple + 5 Continuous sobre você.","produção",20),t("Releia Un.8. Crie 5 pares contrastando os dois tempos.","revisão",20),t("Prep Andy: 'What do you do every day? What are you doing right now?'","gramática",10)]},
+    {id:"sab",focus:"🎓 Aula Andy + Reforço",tasks:[t("AULA COM ANDY — foco: Simple vs Continuous. Leve os 10 pares de frases para correção.","aula",60),t("Após aula: anote erros. Se Andy apontar confusão, releia Un.8 esta noite.","revisão",15),t("Anki: palavras novas da aula.","vocabulário",10),t("Bluey: 2 episódios — perceba 'I work' vs 'I am working'.","imersão",35)]},
+    {id:"dom",focus:"Input + Consolidação",tasks:[t("Anki: SÓ revisão.","vocabulário",15),t("Refaça exercícios das Un.5–8 — foco nos que errou.","revisão",20),t("Bluey: 2 episódios com legenda.","imersão",44),t("Texto 6–8 frases misturando Simple e Continuous sobre sua rotina.","produção",21)]},
+  ]},
+  {n:4,grammar:"⭐ Consolidação — Bloco 1",murphy:"Revisão Un.1–8",bbc:"The rise of the podcast",
+   note:"Nation: sem revisão espaçada o conteúdo não passa para memória de longo prazo. Esta semana é tão importante quanto as anteriores.",
+   production:"Texto de 8–10 frases misturando am/is/are + Continuous + Simple sobre sua vida.",
+   days:[
+    {id:"seg",focus:"Revisão Un.1–2 (to be)",tasks:[t("Anki: revisão + 5 novas (consolidação, não expansão)","vocabulário",12),t("Refaça exercícios das Un.1–2 — foco nos que errou.","revisão",25),t("BBC 6 Min — 'The rise of the podcast': técnica completa (ouça → anote → transcrição → Anki).","listening",23)]},
+    {id:"ter",focus:"Revisão Un.3–4 (Continuous)",tasks:[t("Anki: revisão","vocabulário",12),t("Refaça Un.3–4. Ainda trava no -ing? Releia Un.3 completa.","revisão",28),t("Grave 2 min falando livremente sobre o que fez essa semana. Identifique 1 erro.","speaking",20)]},
+    {id:"qua",focus:"Revisão Un.5–8 (Simple + contraste)",tasks:[t("Anki: revisão","vocabulário",12),t("Refaça Un.5–8. Un.8 é a mais importante — não pule.","revisão",28),t("Reading: Breaking News English (breakingnewsenglish.com) nível 3.","reading",20)]},
+    {id:"qui",focus:"Produção Escrita",tasks:[t("Anki: revisão","vocabulário",12),t("Escreva produção da semana: 8–10 frases misturando os 3 tempos.","produção",28),t("Releia Un.8 — crie 5 novos pares de frases contrastando Simple e Continuous.","revisão",20)]},
+    {id:"sex",focus:"Auto-avaliação + Prep Andy",tasks:[t("Anki: SÓ revisão","vocabulário",10),t("Mini-teste: ef.com.br/efset — compare com semana 0.","revisão",20),t("Organize para Andy: texto + lista de erros + resultado do teste.","gramática",20),t("Leia o texto em voz alta 2x. Grave e ouça.","speaking",10)]},
+    {id:"sab",focus:"🎓 Aula Andy — Revisão Geral",tasks:[t("AULA COM ANDY — revisão Bloco 1. Texto para correção. Peça avaliação honesta do progresso.","aula",60),t("Após aula: qual ponto ainda não está consolidado?","revisão",15),t("Anki: palavras novas.","vocabulário",10),t("Bluey: 2 episódios — imersão livre.","imersão",35)]},
+    {id:"dom",focus:"Folga ativa 🎉",tasks:[t("Anki: revisão leve (10 min).","vocabulário",15),t("Bluey: 3 episódios seguidos — sem obrigação de anotar.","imersão",66),t("Leitura leve: qualquer texto curto em inglês sobre algo que você goste.","reading",20),t("🎉 Bloco 1 concluído! am/is/are + Continuous + Simple — base construída!","revisão",19)]},
+  ]},
+  {n:5,grammar:"was/were + Past Simple",murphy:"Un. 9–12",bbc:"What's the right way to relax?",
+   note:"Verbos irregulares = vocabulário. O deck 'Verbos Irregulares' no Anki é essencial desta semana em diante.",
+   production:"Grave 1 minuto contando algo que aconteceu com você esta semana.",
+   days:[
+    {id:"seg",focus:"Gramática (Un.9 + Un.10)",tasks:[t("Anki: crie deck 'Verbos Irregulares': go/went, have/had, do/did, say/said, get/got, make/made, know/knew, take/took, come/came, see/saw, find/found, give/gave, tell/told, feel/felt, leave/left...","vocabulário",20),t("Murphy Un.9 — I have / I've got: leia rápido. 'I've got a headache. Have you got a car?'","gramática",15),t("Murphy Un.10 — was/were: leia + exercícios. 'I was tired yesterday. Were you at home?'","gramática",25)]},
+    {id:"ter",focus:"Gramática + Listening",tasks:[t("Anki: revisão + verbos irregulares (fale cada par: go → went)","vocabulário",12),t("Murphy Un.11 — worked/got/went (Past Simple afirmativo): leia + exercícios.","gramática",23),t("BBC 6 Min — 'What's the right way to relax?': 1ª sem transcrição. 2ª com transcrição. 5 palavras.","listening",25)]},
+    {id:"qua",focus:"Gramática + Shadowing",tasks:[t("Anki: revisão + 5 palavras BBC + verbos irregulares","vocabulário",12),t("Murphy Un.11: refaça exercícios que errou.","gramática",18),t("Shadowing (20 min): ouça frase BBC → pause → repita imitando ritmo.","speaking",20),t("Escreva 5 frases sobre o que você fez ontem.","produção",10)]},
+    {id:"qui",focus:"Gramática + Reading",tasks:[t("Anki: revisão + 10 novas","vocabulário",12),t("Murphy Un.12 — I didn't / Did you? (Past neg e perguntas): leia + exercícios.","gramática",23),t("News in Levels Level 2: leia e escreva 2–3 frases resumindo no passado.","reading",15),t("BBC 6 Min — 3ª ouça (prazer).","listening",10)]},
+    {id:"sex",focus:"Revisão + Prep Andy",tasks:[t("Anki: SÓ revisão (verbos irregulares prioritários)","vocabulário",12),t("Releia Un.10–12. Liste irregulares que ainda confunde.","revisão",18),t("Prep Andy: prepare 'What did you do this week?' com 5–6 frases. Pratique 2x.","speaking",30)]},
+    {id:"sab",focus:"🎓 Aula Andy + Reforço",tasks:[t("AULA COM ANDY — foco: Past Simple em conversa. Responda 'What did you do this week?'","aula",60),t("Após aula: quais irregulares ainda travam?","revisão",15),t("Anki: irregulares que Andy corrigiu.","vocabulário",10),t("Bluey: 2 episódios — capte verbos no passado.","imersão",35)]},
+    {id:"dom",focus:"Input + Consolidação",tasks:[t("Anki: SÓ revisão (foco verbos irregulares).","vocabulário",15),t("Grave produção: 1 minuto contando algo que aconteceu com você.","produção",20),t("Bluey: 2 episódios. Pause e repita frases no passado.","imersão",44),t("Semana 5 concluída! Consistência é o que importa. 💪","revisão",21)]},
+  ]},
+  {n:6,grammar:"Past Continuous",murphy:"Un. 13–14",bbc:"Learning a language",
+   note:"Un.14 (Continuous vs Simple no passado) é a mais importante desta semana — mesmo padrão difícil da Un.8, mas no passado.",
+   production:"3 frases: Past Simple + Past Continuous. Ex: 'I was watching TV when the phone rang.'",
+   days:[
+    {id:"seg",focus:"Gramática",tasks:[t("Anki: revisão + 10 novas","vocabulário",15),t("Murphy Un.13 — I was doing (Past Continuous): leia 2x. 'I was working when she called.'","gramática",25),t("Murphy Un.13 — exercícios. O que você estava fazendo ontem às 21h?","gramática",20)]},
+    {id:"ter",focus:"Gramática + Listening",tasks:[t("Anki: revisão + 10 novas","vocabulário",12),t("Murphy Un.13: refaça exercícios que errou.","gramática",18),t("BBC 6 Min — 'Learning a language': 1ª sem transcrição. 2ª com transcrição. 5 palavras.","listening",30)]},
+    {id:"qua",focus:"⭐ Un.14 — Central da semana",tasks:[t("Anki: revisão + 5 palavras BBC","vocabulário",12),t("Murphy Un.14 — Past Continuous vs Past Simple ⭐: LEIA DEVAGAR, 2x. 'I was watching' (em progresso) vs 'I watched' (concluído).","gramática",23),t("Shadowing: 10 min com BBC.","speaking",15),t("BBC Learning English — 'Words in the News': identifique verbos no passado.","reading",10)]},
+    {id:"qui",focus:"Gramática + Produção",tasks:[t("Anki: revisão + 10 novas","vocabulário",12),t("Murphy Un.14: exercícios. Não pule nenhum.","gramática",23),t("Escreva 3 frases combinando Simple + Continuous.","produção",15),t("Leia em voz alta. Grave e ouça.","speaking",10)]},
+    {id:"sex",focus:"Revisão + Prep Andy",tasks:[t("Anki: SÓ revisão","vocabulário",10),t("Releia Un.13–14. 'was working' (em progresso) vs 'worked' (concluído).","revisão",25),t("Prep Andy: mini-história de 4–5 frases no passado misturando os dois tempos.","produção",25)]},
+    {id:"sab",focus:"🎓 Aula Andy + Reforço",tasks:[t("AULA COM ANDY — Past Continuous vs Simple em conversa. Conte a mini-história.","aula",60),t("Após aula: ainda confunde 'was doing' vs 'did'?","revisão",15),t("Anki: palavras novas.","vocabulário",10),t("Bluey: 2 episódios — ações que se sobrepõem no passado.","imersão",35)]},
+    {id:"dom",focus:"Input + Integração",tasks:[t("Anki: SÓ revisão.","vocabulário",15),t("Refaça Un.13–14 — só os exercícios que errou.","revisão",25),t("Bluey: 2 episódios — imersão livre.","imersão",44),t("Semana 6 — Bloco 2 do passado em andamento. 🎯","revisão",36)]},
+  ]},
+  {n:7,grammar:"Present Perfect 1–4",murphy:"Un. 15–18",bbc:"Is it ever OK to lie?",
+   note:"Present Perfect = maior dificuldade de brasileiros. Exposição repetida via Anki + Bluey constrói o instinto. Não force.",
+   production:"Grave: 'Have you ever been abroad? Have you ever studied English? How long have you lived in Rio?'",
+   days:[
+    {id:"seg",focus:"Gramática — só a FORMA",tasks:[t("Anki: revisão + 10 novas","vocabulário",15),t("Murphy Un.15 — I have done (PP1): leia 2x. Foco SÓ NA FORMA: have/has + particípio. Não tente entender todos os usos.","gramática",25),t("Murphy Un.15 — exercícios de FORMAÇÃO apenas.","gramática",20)]},
+    {id:"ter",focus:"Gramática + Listening",tasks:[t("Anki: revisão + 10 novas","vocabulário",12),t("Murphy Un.16 — I've just… / I've already… / I haven't…yet: leia + exercícios. 3 frases com cada.","gramática",23),t("BBC 6 Min — 'Is it ever OK to lie?': 1ª sem transcrição. 2ª com transcrição. 5 palavras.","listening",25)]},
+    {id:"qua",focus:"Gramática + Speaking",tasks:[t("Anki: revisão + 5 palavras BBC","vocabulário",12),t("Murphy Un.17 — Have you ever…? (PP3): leia + exercícios.","gramática",23),t("Grave respondendo 5 perguntas 'Have you ever…?' sobre sua vida.","speaking",15),t("Shadowing: 10 min com BBC.","speaking",10)]},
+    {id:"qui",focus:"Gramática + Reading",tasks:[t("Anki: revisão + 10 novas","vocabulário",12),t("Murphy Un.18 — How long have you…? (PP4): leia + exercícios.","gramática",23),t("News in Levels Level 2: identifique Present Perfect no texto.","reading",15),t("BBC 6 Min — 3ª ouça (prazer).","listening",10)]},
+    {id:"sex",focus:"Revisão + Prep Andy",tasks:[t("Anki: SÓ revisão","vocabulário",10),t("Refaça Un.15–18. Anote todo erro.","revisão",25),t("Prep Andy: gravação 'Have you ever…' + erros + dúvidas sobre Perfect.","gramática",15),t("Foco na pronúncia de 'have/has' — leia frases em voz alta.","speaking",10)]},
+    {id:"sab",focus:"🎓 Aula Andy + Reforço",tasks:[t("AULA COM ANDY — foco: Present Perfect usos. Tire TODAS as dúvidas.","aula",60),t("Após aula: 'have seen' (sem tempo) vs 'saw' (yesterday, in 2020).","revisão",15),t("Anki: palavras novas + exemplos Andy.","vocabulário",10),t("Bluey: 2 episódios — note 'have + particípio'.","imersão",35)]},
+    {id:"dom",focus:"Input + Produção",tasks:[t("Anki: SÓ revisão.","vocabulário",15),t("Releia lado esquerdo Un.15–18 (5 min cada).","revisão",20),t("Bluey: 2 episódios com legenda.","imersão",44),t("Grave produção: 'Have you ever been abroad? How long have you lived in Rio?'","produção",21)]},
+  ]},
+  {n:8,grammar:"For/Since/Ago + ⭐⭐ Perfect vs Past",murphy:"Un. 19–20",bbc:"How do people choose their jobs?",
+   note:"Un.20 (Perfect vs Past Simple) é a unidade mais importante do livro inteiro para brasileiros. Atenção máxima. Não avance com dúvida.",
+   production:"10 pares de frases: 'I have lived here for 5 years' vs 'I lived there in 2015.' Leve para Andy.",
+   days:[
+    {id:"seg",focus:"Gramática",tasks:[t("Anki: revisão + 10 novas","vocabulário",15),t("Murphy Un.19 — for / since / ago: leia 2x. 'I've lived here for 5 years / since 2019 / 5 years ago.'","gramática",25),t("Murphy Un.19 — exercícios. 3 frases com for e 3 com since.","gramática",20)]},
+    {id:"ter",focus:"Gramática + Listening",tasks:[t("Anki: revisão + 10 novas","vocabulário",12),t("Murphy Un.19: refaça exercícios que errou.","gramática",18),t("BBC 6 Min — 'How do people choose their jobs?': 1ª sem transcrição. 2ª com transcrição. 5 palavras.","listening",30)]},
+    {id:"qua",focus:"⭐⭐ Un.20 — A mais importante do livro",tasks:[t("Anki: revisão + 5 palavras BBC","vocabulário",12),t("Murphy Un.20 — Present Perfect vs Past Simple ⭐⭐: LEIA DEVAGAR, 3X. A maior dificuldade do livro para brasileiros.","gramática",28),t("Murphy Un.20 — exercícios TODOS. Anote cada erro com explicação do porquê errou.","gramática",20)]},
+    {id:"qui",focus:"Produção + Reading",tasks:[t("Anki: revisão + 10 novas","vocabulário",12),t("Escreva produção: 10 pares Perfect vs Past Simple.","produção",23),t("News in Levels Level 2: identifique Perfect e Past Simple.","reading",15),t("BBC 6 Min — 3ª ouça (prazer).","listening",10)]},
+    {id:"sex",focus:"Revisão + Prep Andy",tasks:[t("Anki: SÓ revisão","vocabulário",10),t("Releia Un.20. Se ainda confunde, releia Un.15 também.","revisão",25),t("Prep Andy: leve os 10 pares para correção. Prepare dúvidas específicas.","gramática",25)]},
+    {id:"sab",focus:"🎓 Aula Andy + GRANDE Reforço",tasks:[t("AULA COM ANDY — foco TOTAL: Perfect vs Past Simple (Un.20). Corrija os 10 pares.","aula",60),t("Após aula: se Andy identificar confusão, dedique mais tempo à Un.20 na próxima semana.","revisão",15),t("Anki: palavras novas + exemplos Andy.","vocabulário",10),t("Bluey: 2 episódios — atenção redobrada a 'have done' vs 'did'.","imersão",35)]},
+    {id:"dom",focus:"Input + Avaliação",tasks:[t("Anki: revisão completa de TODOS os decks.","vocabulário",20),t("Refaça o EF SET: compare com semanas anteriores.","revisão",20),t("Bluey: 2 episódios — imersão livre.","imersão",44),t("🚀 Bloco 2 concluído! Próximo: Passive + Future + Modals.","revisão",36)]},
+  ]},
+];
+
+const INDEX = [
+  ["Un. 1–2","am/is/are + questions","Present"],
+  ["Un. 3–4","Present Continuous + questions","Present"],
+  ["Un. 5–7","Present Simple (afirm, neg, quest)","Present"],
+  ["Un. 8","Continuous vs Simple ⭐","Present"],
+  ["Un. 9","I have / I've got","Present"],
+  ["Un. 10","was/were","Past"],
+  ["Un. 11","Past Simple afirmativo","Past"],
+  ["Un. 12","I didn't / Did you? ⭐","Past"],
+  ["Un. 13–14","Past Continuous + vs Simple ⭐","Past"],
+  ["Un. 15–18","Present Perfect 1–4","Perf."],
+  ["Un. 19","for / since / ago","Perf."],
+  ["Un. 20","Perfect vs Past Simple ⭐⭐","Perf."],
+  ["Un. 21–22","Passive","Passive"],
+  ["Un. 25–28","Future (will / going to)","Future"],
+  ["Un. 29–33","Modals (might, can, must, should)","Modal"],
+  ["Un. 35","used to","Past"],
+  ["Un. 99–100","Conditionals (if)","Cond."],
+];
+
+// ─── ESTADO ───────────────────────────────────────────────────────────────────
+let currentTab = "overview";
+let selWeek = 1;
+let selDay  = null;
+let done = JSON.parse(localStorage.getItem("diego_done") || "{}");
+
+function saveDone() { localStorage.setItem("diego_done", JSON.stringify(done)); }
+
+function showToast(msg) {
+  const el = document.getElementById("toast");
+  el.textContent = msg; el.classList.add("show");
+  setTimeout(() => el.classList.remove("show"), 1800);
+}
+
+// ─── HELPERS ─────────────────────────────────────────────────────────────────
+function dayMin(d)    { return d.tasks.reduce((a,t)=>a+t.min,0); }
+function dayDoneN(wn,d){ return d.tasks.filter((_,i)=>done[`${wn}-${d.id}-${i}`]).length; }
+function wkDone(w)    { return w.days.reduce((a,d)=>a+dayDoneN(w.n,d),0); }
+function wkTotal(w)   { return w.days.reduce((a,d)=>a+d.tasks.length,0); }
+function pct(a,b)     { return b===0?0:Math.round(a/b*100); }
+
+function typeBadge(type, min) {
+  const c = TC[type]||TC.revisão;
+  return `<span class="type-badge" style="background:${c.bg};color:${c.text}">
+    <span class="type-dot" style="background:${c.dot}"></span>${min}m
+  </span>`;
+}
+
+// ─── TABS ────────────────────────────────────────────────────────────────────
+function switchTab(tab) {
+  currentTab = tab;
+  ["overview","week","index"].forEach(t=>{
+    document.getElementById("tab-"+t).style.display = t===tab?"block":"none";
+    document.getElementById("btn-"+t).classList.toggle("active", t===tab);
+  });
+  render();
+}
+
+// ─── RENDER OVERVIEW ─────────────────────────────────────────────────────────
+function renderOverview() {
+  let cards = WEEKS.map(w=>{
+    const wd=wkDone(w), wt=wkTotal(w), p=pct(wd,wt);
+    const wMin = w.days.reduce((a,d)=>a+dayMin(d),0);
+    return `<button class="week-card ${selWeek===w.n?'active':''}" onclick="selectWeek(${w.n})">
+      <div style="display:flex;justify-content:space-between;align-items:center">
+        <span class="wn">Semana ${w.n}</span>
+        <span style="font-size:10px;color:#9ca3af">${wMin}min</span>
+      </div>
+      <div class="wg">${w.murphy} · ${w.grammar}</div>
+      <div class="wbar-bg"><div class="wbar" style="width:${p}%;background:${p===100?'#10b981':'#3b82f6'}"></div></div>
+      <div class="wpct">${wd}/${wt} tarefas · ${p}%</div>
+    </button>`;
+  }).join("");
+
+  document.getElementById("tab-overview").innerHTML = `
+    <div style="background:#fff;border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.08)">
+      <div style="font-weight:700;font-size:14px;margin-bottom:10px">⏱️ Carga Horária</div>
+      <div style="display:flex;gap:8px">
+        ${[["Seg–Sex","5×1h","5h/sem","#3b82f6"],["Sábado","1×2h","2h","#1e3a5f"],["Domingo","1×2h","2h","#6b7280"],["Total","7 dias","9h/sem","#10b981"]].map(([d,s,t,c])=>`
+          <div style="flex:1;text-align:center;padding:8px 4px;border-radius:10px;border-top:3px solid ${c};background:#f9fafb">
+            <div style="font-weight:800;font-size:12px;color:${c}">${d}</div>
+            <div style="font-size:10px;color:#6b7280">${s}</div>
+            <div style="font-weight:700;font-size:11px;color:#111;margin-top:2px">${t}</div>
+          </div>`).join("")}
+      </div>
+    </div>
+    <div style="background:#fff;border-radius:14px;padding:14px;margin-bottom:12px;box-shadow:0 1px 3px rgba(0,0,0,.08)">
+      <div style="font-weight:700;font-size:14px;margin-bottom:10px">📋 Semanas da Fase 1</div>
+      <div class="week-grid">${cards}</div>
+      <div style="background:#fef9c3;border-radius:10px;padding:10px;font-size:12px;color:#92400e">
+        🗓️ Semanas 9–12 (Passive, Future, Modals) e Fases 2–3 serão detalhadas conforme você avança.
+      </div>
+    </div>`;
+}
+
+function selectWeek(n) {
+  selWeek = n; selDay = null;
+  switchTab("week");
+}
+
+// ─── RENDER WEEK ─────────────────────────────────────────────────────────────
+function renderWeek() {
+  const week = WEEKS.find(w=>w.n===selWeek);
+  const wd=wkDone(week), wt=wkTotal(week), p=pct(wd,wt);
+
+  // Day selector
+  const daySel = week.days.map(d=>{
+    const col=DCOLOR[d.id], dD=dayDoneN(week.n,d), isSel=selDay===d.id;
+    return `<button class="day-btn" onclick="selectDay('${d.id}')"
+      style="border-color:${isSel?col:'#e5e7eb'};background:${isSel?col:'#fff'};color:${isSel?'#fff':'#374151'}">
+      <div class="dl">${DLABEL[d.id]}</div>
+      <div class="dh">${d.id==="sab"||d.id==="dom"?"2h":"1h"}</div>
+      <div class="dp">${dD}/${d.tasks.length}</div>
+    </button>`;
+  }).join("");
+
+  // Day content
+  let dayContent = "";
+  if (!selDay) {
+    dayContent = `<div class="day-list">` + week.days.map(d=>{
+      const col=DCOLOR[d.id], mins=dayMin(d), dD=dayDoneN(week.n,d);
+      const miniBar = d.tasks.map(tk=>{
+        const c=TC[tk.type]||TC.revisão;
+        return `<div style="flex:${tk.min};background:${c.dot};min-width:2px"></div>`;
+      }).join("");
+      return `<button class="day-row" onclick="selectDay('${d.id}')" style="width:100%;gap:0">
+        <div class="day-icon" style="background:${col}">
+          <span>${DLABEL[d.id]}</span>
+          <span>${d.id==="sab"||d.id==="dom"?"2h":"1h"}</span>
+        </div>
+        <div class="day-info">
+          <div class="df">${d.focus}</div>
+          <div class="ds">${d.tasks.length} tarefas · ${mins}min</div>
+          <div class="day-mini-bar">${miniBar}</div>
+        </div>
+        <div class="day-count">
+          <div class="dc" style="color:${dD===d.tasks.length?'#10b981':'#374151'}">${dD}/${d.tasks.length}</div>
+          <div class="dl2">tarefas</div>
+        </div>
+        <span class="arrow">›</span>
+      </button>`;
+    }).join("") + `</div>`;
+  } else {
+    const d = week.days.find(x=>x.id===selDay);
+    const col=DCOLOR[d.id], mins=dayMin(d), avail=THEORY[d.id];
+    const timeColor = mins>avail?"#ef4444":"#10b981";
+    const tasks = d.tasks.map((tk,ti)=>{
+      const key=`${week.n}-${d.id}-${ti}`;
+      const isDone=!!done[key];
+      const c=TC[tk.type]||TC.revisão;
+      return `<div class="task-item" onclick="toggleTask('${key}','${col}','${week.n}','${d.id}','${ti}')">
+        <div class="task-check" id="chk-${key}" style="border-color:${isDone?col:'#d1d5db'};background:${isDone?col:'#fff'}">
+          ${isDone?"✓":""}
+        </div>
+        <span class="task-text ${isDone?'done':''}" id="txt-${key}">${tk.text}</span>
+        ${typeBadge(tk.type,tk.min)}
+      </div>`;
+    }).join("");
+
+    // Time bar
+    const barSegs = d.tasks.map(tk=>{
+      const c=TC[tk.type]||TC.revisão;
+      return `<div style="flex:${tk.min};background:${c.dot};min-width:2px"></div>`;
+    }).join("");
+    const typeTotals = {};
+    d.tasks.forEach(tk=>{ typeTotals[tk.type]=(typeTotals[tk.type]||0)+tk.min; });
+    const typeTags = Object.entries(typeTotals).map(([tp,tot])=>{
+      const c=TC[tp]||TC.revisão;
+      return `<span class="type-tag" style="background:${c.bg};color:${c.text}">${tp}: ${tot}min</span>`;
+    }).join("");
+
+    dayContent = `
+      <div style="background:#fff;border-radius:14px;padding:16px;box-shadow:0 1px 3px rgba(0,0,0,.08);border-top:4px solid ${col}">
+        <div class="task-header">
+          <div style="display:flex;align-items:center">
+            <span class="day-label" style="background:${col}">${DLABEL[d.id]}</span>
+            <span class="day-focus">${d.focus}</span>
+          </div>
+          <span class="time-badge-header" style="color:${timeColor}">${mins}/${avail}min</span>
+        </div>
+        ${tasks}
+        <div class="time-bar-wrap">
+          <div class="time-bar-row"><span>Distribuição</span><span style="color:${timeColor};font-weight:700">${mins}/${avail}min</span></div>
+          <div class="time-bar">${barSegs}</div>
+          <div class="type-tags">${typeTags}</div>
+        </div>
+      </div>`;
+  }
+
+  document.getElementById("tab-week").innerHTML = `
+    <div style="display:flex;align-items:center;gap:8px;margin-bottom:12px">
+      <button onclick="prevWeek()" ${selWeek===1?"disabled":""} style="padding:6px 14px;border-radius:8px;border:1px solid #e5e7eb;background:${selWeek===1?"#f3f4f6":"#fff"};font-size:16px">‹</button>
+      <div style="flex:1;text-align:center">
+        <div style="font-weight:800;font-size:15px;color:#1e3a5f">Semana ${week.n} — ${week.grammar}</div>
+        <div style="font-size:12px;color:#6b7280">${week.murphy} · BBC: ${week.bbc}</div>
+      </div>
+      <button onclick="nextWeek()" ${selWeek===WEEKS.length?"disabled":""} style="padding:6px 14px;border-radius:8px;border:1px solid #e5e7eb;background:${selWeek===WEEKS.length?"#f3f4f6":"#fff"};font-size:16px">›</button>
+    </div>
+    <div class="week-info">
+      <div class="note-badge">💡 ${week.note}</div>
+      <div class="prod-text"><strong>✍️ Produção:</strong> ${week.production}</div>
+      <div class="prog-row"><span>Progresso</span><span>${wd}/${wt} tarefas</span></div>
+      <div class="prog-bg"><div class="prog-bar" style="width:${p}%;background:${p===100?'#10b981':'#3b82f6'}"></div></div>
+    </div>
+    <div class="day-scroll">${daySel}</div>
+    ${dayContent}`;
+}
+
+function selectDay(id) {
+  selDay = selDay===id ? null : id;
+  renderWeek();
+}
+function prevWeek() { if(selWeek>1){selWeek--;selDay=null;renderWeek();} }
+function nextWeek() { if(selWeek<WEEKS.length){selWeek++;selDay=null;renderWeek();} }
+
+function toggleTask(key, col, wn, did, ti) {
+  done[key] = !done[key];
+  saveDone();
+  const chk = document.getElementById("chk-"+key);
+  const txt = document.getElementById("txt-"+key);
+  if (chk) {
+    chk.style.borderColor = done[key]?col:"#d1d5db";
+    chk.style.background  = done[key]?col:"#fff";
+    chk.textContent = done[key]?"✓":"";
+  }
+  if (txt) {
+    txt.classList.toggle("done", done[key]);
+  }
+  if(done[key]) showToast("✅ Tarefa concluída!");
+}
+
+// ─── RENDER INDEX ─────────────────────────────────────────────────────────────
+function renderIndex() {
+  const rows = INDEX.map(([u,t,cat])=>`
+    <div class="idx-row">
+      <span class="idx-un">${u}</span>
+      <span style="flex:1;color:#374151">${t}</span>
+      <span class="idx-cat">${cat}</span>
+    </div>`).join("");
+  document.getElementById("tab-index").innerHTML = `
+    <div style="background:#fff;border-radius:14px;padding:14px;box-shadow:0 1px 3px rgba(0,0,0,.08)">
+      <div style="font-weight:700;font-size:14px;margin-bottom:12px">📖 Essential Grammar in Use 3ª Ed.</div>
+      ${rows}
+      <div style="margin-top:10px;background:#f0fdf4;border-radius:8px;padding:10px;font-size:12px;color:#166534">
+        ✅ Unidades marcadas com ⭐ são as mais críticas para brasileiros — dedique atenção extra.
+      </div>
+    </div>`;
+}
+
+// ─── RENDER ───────────────────────────────────────────────────────────────────
+function render() {
+  if(currentTab==="overview") renderOverview();
+  if(currentTab==="week")     renderWeek();
+  if(currentTab==="index")    renderIndex();
+}
+
+render();
+</script>
+</body>
+</html>
